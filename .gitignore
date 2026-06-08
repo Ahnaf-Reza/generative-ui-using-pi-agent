@@ -1,1 +1,3 @@
 docs/ubuntu-docker-and-project-setup.md
+/backend/.env
+backend/node_modules/
