@@ -9,6 +9,7 @@ import {
   createAgentSession,
   ModelRegistry,
   SessionManager,
+  createCodingTools,
 } from "@earendil-works/pi-coding-agent";
 import { getModel, getModels, getProviders } from "@earendil-works/pi-ai";
 
