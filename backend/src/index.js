@@ -124,6 +124,7 @@ async function getSharedSession(provider, modelId, apiKey) {
     authStorage,
     modelRegistry,
     model,
+    tools: [],
   });
 
   sessionCache.set(key, session);
