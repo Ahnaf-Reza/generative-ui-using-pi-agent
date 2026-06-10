@@ -4,12 +4,12 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
+import { resolve, dirname } from "path";
 import {
   AuthStorage,
   createAgentSession,
   ModelRegistry,
   SessionManager,
-  createCodingTools,
 } from "@earendil-works/pi-coding-agent";
 import { getModel, getModels, getProviders } from "@earendil-works/pi-ai";
 
@@ -22,6 +22,10 @@ const backendEnv = (() => {
     return {};
   }
 })();
+
+// Root of the whole project (one level above backend/)
+const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+console.log("Project root:", projectRoot);
 
 const app = express();
 app.use(bodyParser.json());
@@ -120,14 +124,14 @@ async function getSharedSession(provider, modelId, apiKey) {
     );
   }
 
-  const { session } = await createAgentSession({
-    sessionManager,
-    authStorage,
-    modelRegistry,
-    model,
-    tools: [],
-  });
-
+const { session } = await createAgentSession({
+  sessionManager,
+  authStorage,
+  modelRegistry,
+  model,
+  cwd: projectRoot,
+  tools: ["read", "bash", "edit", "write"],
+});
   sessionCache.set(key, session);
   return session;
 }
@@ -200,7 +204,12 @@ app.post("/api/pi-chat", async (req, res) => {
       }
     });
 
+    const isFirstMessage = (session.state?.messages || []).length === 0;
+    if (isFirstMessage) {
+    await session.prompt(`You have access to read, write, edit, and bash tools. When asked to read a file, use the read tool. When asked to run a command, use bash. Do not say you cannot access files — just use your tools directly. My project is at ${projectRoot}. Now respond to: ${message}`);
+    } else {
     await session.prompt(message);
+    }
     await session.agent.waitForIdle();
     unsubscribe();
 
