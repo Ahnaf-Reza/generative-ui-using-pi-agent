@@ -7,10 +7,18 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [input]);
 
   async function send() {
     const text = input.trim();
@@ -66,9 +74,10 @@ export default function Chat() {
       </div>
       <div style={{ padding:"16px 24px", borderTop:"1px solid #2a2a2a", display:"flex", gap:10 }}>
         <textarea
+          ref={textareaRef}
           rows={1} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKeyDown} disabled={loading}
           placeholder="Ask the agent anything…"
-          style={{ flex:1, background:"#1a1a1a", border:"1px solid #2a2a2a", borderRadius:12, color:"#e8e8e8", fontFamily:"inherit", fontSize:"0.9rem", padding:"12px 16px", resize:"none", outline:"none" }}
+          style={{ flex:1, background:"#1a1a1a", border:"1px solid #2a2a2a", borderRadius:12, color:"#e8e8e8", fontFamily:"inherit", fontSize:"0.9rem", padding:"12px 16px", resize:"none", outline:"none", overflow:"hidden" }}
         />
         <button onClick={send} disabled={loading || !input.trim()}
           style={{ background:"#7c6af7", color:"#fff", border:"none", borderRadius:12, padding:"0 20px", fontSize:"0.9rem", fontWeight:500, cursor:"pointer", opacity: loading || !input.trim() ? 0.4 : 1 }}>
