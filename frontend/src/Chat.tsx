@@ -2,6 +2,34 @@ import { useState, useRef, useEffect } from "react";
 
 type Message = { role: "user" | "assistant"; content: string };
 
+function Face({ mood = "happy" }: { mood?: string }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "center", padding: "10px" }}>
+      <svg width="100" height="100" viewBox="0 0 100 100" style={{ background: "#333", borderRadius: "50%", padding: "10px" }}>
+        <circle cx="30" cy="40" r="5" fill="white" />
+        <circle cx="70" cy="40" r="5" fill="white" />
+        {mood === "happy" ? (
+          <path d="M 30 70 Q 50 85 70 70" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" />
+        ) : (
+          <path d="M 30 80 Q 50 65 70 80" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" />
+        )}
+      </svg>
+    </div>
+  );
+}
+
+function renderContent(content: string) {
+  try {
+    const parsed = JSON.parse(content);
+    if (parsed.type === "ui-component") {
+      if (parsed.component === "Face") {
+        return <Face mood={parsed.props?.mood} />;
+      }
+    }
+  } catch (e) {}
+  return <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word", fontFamily: "inherit" }}>{content}</pre>;
+}
+
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -60,7 +88,7 @@ export default function Chat() {
             background: m.role === "user" ? "#1e1b3a" : "#1a1a1a",
             border: m.role === "user" ? "1px solid #2d2560" : "1px solid #2a2a2a",
           }}>
-            <pre style={{ whiteSpace:"pre-wrap", wordBreak:"break-word", fontFamily:"inherit" }}>{m.content}</pre>
+            {renderContent(m.content)}
           </div>
         ))}
         {loading && (
