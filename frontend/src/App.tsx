@@ -4,13 +4,14 @@ import AgentPanel from "./AgentPanel";
 import "./index.css";
 
 type Tab = "chat" | "agent";
+type Message = { role: "user" | "assistant"; content: string };
 
 export default function App() {
   const [tab, setTab] = useState<Tab>("chat");
+  const [messages, setMessages] = useState<Message[]>([]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "#0f0f0f", color: "#e8e8e8", fontFamily: "system-ui, sans-serif" }}>
-      {/* top nav */}
       <nav style={{ display: "flex", alignItems: "center", gap: 4, padding: "12px 20px", borderBottom: "1px solid #2a2a2a" }}>
         <span style={{ fontWeight: 700, fontSize: "1rem", marginRight: 16 }}>Pi Agent</span>
         {(["chat", "agent"] as Tab[]).map((t) => (
@@ -26,9 +27,14 @@ export default function App() {
         <span style={{ marginLeft: "auto", width: 8, height: 8, borderRadius: "50%", background: "#4ade80", display: "inline-block" }} />
       </nav>
 
-      {/* content */}
       <div style={{ flex: 1, overflow: "hidden" }}>
-        {tab === "chat" ? <Chat /> : <AgentPanel />}
+        {/* keep both mounted so state is never lost */}
+        <div style={{ display: tab === "chat" ? "flex" : "none", flexDirection: "column", height: "100%" }}>
+          <Chat messages={messages} setMessages={setMessages} />
+        </div>
+        <div style={{ display: tab === "agent" ? "flex" : "none", flexDirection: "column", height: "100%" }}>
+          <AgentPanel />
+        </div>
       </div>
     </div>
   );
